@@ -3,12 +3,13 @@
 <!-- forks
 		https://github.com/programmer-has-no-girlfriend/meidan -->
 <!DOCTYPE html>
-<html>
+<html xmlns:wb="http://open.weibo.com/wb">
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link rel="shortcut icon" href="favicon.ico" />
-		<title>Would you marry me?</title>
+		<title>wbimg</title>
+		<link rel="stylesheet" href="http://jeasyui.com/easyui/themes/metro/easyui.css">
 		<style>
 			html, body {
 				height: 100%;
@@ -76,25 +77,87 @@
 				color: #000000;
 				background-color: rgba(0,255,255,0.75);
 			}
+
+			.corner {
+				position: absolute;
+				top: -16px;
+				width: 250px;
+				padding-top: 2em;
+				-webkit-transform-origin: 0 0;
+				-moz-transform-origin: 0 0;
+				-ms-transform-origin: 0 0;
+				-o-transform-origin: 0 0;
+				transform-origin: 0 0;
+			}
+			#author {
+				left: -20px;
+				-webkit-transform: rotate(-35deg) translate(-110px, 22px);
+				-moz-transform: rotate(-35deg) translate(-110px, 22px);
+				-ms-transform: rotate(-35deg) translate(-110px, 22px);
+				-o-transform: rotate(-35deg) translate(-110px, 22px);
+				transform: rotate(-35deg) translate(-110px, 22px);
+			}
+			#account {
+				right: -20px;
+				-webkit-transform: rotate(35deg) translate(65px, -122px);
+				-moz-transform: rotate(35deg) translate(65px, -122px);
+				-ms-transform: rotate(35deg) translate(65px, -122px);
+				-o-transform: rotate(35deg) translate(65px, -122px);
+				transform: rotate(35deg) translate(65px, -122px);
+			}
 		</style>
 	</head>
 	<body>
+		<script>if (location.protocol == 'https:') { location.href = 'http' + location.href.substr(5); throw 'return'; }</script>
+
 		<script src="build/three.min.js"></script>
 		<script src="js/libs/tween.min.js"></script>
 		<script src="js/controls/TrackballControls.js"></script>
 		<script src="js/renderers/CSS3DRenderer.js"></script>
 
 		<div id="container"></div>
-		<div id="menu">
-			<button id="table">Would</button>
+		<div id="menu" style="display: none;">
+			<button id="table">do</button>
 			<button id="sphere">you</button>
-			<button id="helix">marry</button>
+			<button id="helix">like</button>
 			<button id="grid">me</button>
-			<br><audio style="margin-top: 9px;min-width: 223px;" controls autoplay loop src="other/index.mp3"></audio>
 		</div>
+
+		<button id="author" class="corner" onclick="window.open('https://github.com/programmer-has-no-girlfriend/meidan');">原作者</button>
+		<button id="account" class="corner">&emsp;&emsp;&emsp;</button>
+		<script src="http://code.jquery.com/jquery.min.js"></script>
+		<script src="http://jeasyui.com/easyui/jquery.easyui.min.js"></script>
+		<script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=2469878278" charset="utf-8"></script>
+		<script src="other/wbimg.js"></script>
 		<script>
-		(function() {
-			var start = 1, num = 174;// num: 196是最大值
+jQuery(function($) {
+	var $account = $('#account');
+	$account.click(function() {
+		if (WB2.checkLogin()) {
+			WB2.logout(function(){
+				location.reload();
+			});
+		} else {
+			WB2.login(function() {
+				load(), $account.html('退&emsp;出');
+			});
+		}
+	});
+	if (WB2.checkLogin()) {
+		$account.html('退&emsp;出');
+		$.messager.alert('消息', '请使用现代浏览器访问<br>确认后点击Ok继续！！！', 'info', function(){
+			load();
+		});
+	} else {
+		$account.html('登&emsp;录');
+		$.messager.alert('消息', '请使用现代浏览器访问 并 允许弹出的微博登录窗口 及 使用微博账号登录<br>确认后点击Ok继续！！！', 'info', function(){
+			$account.click();
+		});
+	}
+
+	function load() {
+		wbimg.getImgs(174, function(img_urls) {// num: 196是最大值
+			$('#menu').append('<br><audio style="margin-top: 9px;min-width: 223px;" controls autoplay loop src="other/index.mp3"></audio>').show();
 			var offSetX = 1500;
 			var offSetY = 1200;
 
@@ -114,7 +177,7 @@
 
 				scene = new THREE.Scene();
 
-				for ( var i = num, j = start - 1; i > j; i--) {
+				for ( var i = 0, j = img_urls.length; i < j; i++) {
 
 					var element = document.createElement( 'div' );
 					element.className = 'element';
@@ -122,7 +185,7 @@
 
 					var image = document.createElement( 'img' );
 					image.className = 'image';
-					image.src = 'http://198.23.246.142/marryme/' + (i) + '.jpg';
+					image.src = img_urls[i];
 					element.appendChild( image );
 
 					var object = new THREE.CSS3DObject( element );
@@ -418,7 +481,9 @@
 				renderer.render( scene, camera );
 
 			}
-		})();
+		});
+	}
+});
 		</script>
 	</body>
 </html>
